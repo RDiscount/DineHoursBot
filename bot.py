@@ -155,9 +155,14 @@ def inp(message):
     to_main = types.KeyboardButton("На главную")
     change_rest = types.KeyboardButton("Поменять ресторан")
     markup_start_sub.add(support, to_main, channel, guide, my_subscription)
+
+    markup_rests = types.InlineKeyboardMarkup(row_width=1)
+    rest1 = types.InlineKeyboardButton("Ресторан 1", callback_data='rest1')
+    markup_rests.add(rest1)
     # Keys----------------------------------------------------------
 
     if message.chat.type == 'private':
+
         if message.text == "Поддержка":
             bot.send_message(message.chat.id, "Перейдите в чат с поддердкой\n@DineHours_support")
         if message.text == "Выбрать ресторан":
@@ -166,13 +171,20 @@ def inp(message):
                                               "<a href = 'https://t.me/DineHours/21'> Ресторан 1 </a>"
                                               "\n<a href = 'https://t.me/DineHours/25'> Ресторан 2 </a>"
                                               "\n<a href = 'https://t.me/DineHours/29'> Ресторан 3 </a>",
-                             parse_mode='html')
+                             parse_mode='html', disable_web_page_preview=True, reply_markup=markup_rests)
+        if message.text == "Поменять ресторан":
+            bot.send_message(message.chat.id, "Выберите ресторан, в который хотите пойти")
+            bot.send_message(message.chat.id, "Cписок ресторанов\n"
+                                              "<a href = 'https://t.me/DineHours/21'> Ресторан 1 </a>"
+                                              "\n<a href = 'https://t.me/DineHours/25'> Ресторан 2 </a>"
+                                              "\n<a href = 'https://t.me/DineHours/29'> Ресторан 3 </a>",
+                             parse_mode='html', disable_web_page_preview=True, reply_markup=markup_rests)
         if message.text == "На главную":
             bot.send_message(message.chat.id,
                              "Привет, {0.first_name}, это DineHours бот. Я даю возможность получить скидки от 10% в любимые рестораны "
                              "Москвы по подписке. Стоимость подписки: 249 рублей в месяц. Посмотрите гайд, "
                              "чтобы узнать, как это работает".format(
-                                 message.from_user), parse_mode='html', reply_markup=markup_guide)
+                                 message.from_user), parse_mode='html', reply_markup=markup_start_sub)
         if message.text == "Гайд":
             bot.send_message(message.chat.id, "1 экран: Нажмите на кнопку «Оформить подписку». Оплати ее с помощью "
                                               "банковской картой прямо внутри бота 2 экран: Выберите среди "
@@ -218,6 +230,13 @@ def callback_inline(call):
     markup_guide = types.InlineKeyboardMarkup(row_width=1)
     guide = types.InlineKeyboardButton("Гайд", callback_data='guide')
     markup_guide.add(guide)
+
+    markup_card = types.ReplyKeyboardMarkup(row_width=1)
+    support = types.KeyboardButton("Поддержка")
+    my_subscription = types.KeyboardButton("Моя подписка")
+    to_main = types.InlineKeyboardButton("На главную", callback_data='tomain')
+    change_rest = types.KeyboardButton("Поменять ресторан")
+    markup_card.add(support, my_subscription, change_rest, to_main)
     # Keys----------------------------------------------------------
     try:
         if call.message:
@@ -245,6 +264,8 @@ def callback_inline(call):
                                            "чтобы узнать, как это работает".format(
                                           call.from_user, bot.get_me()),
                                       parse_mode='html', reply_markup=markup_guide)
+
+
             if call.data == 'cancel':
                 bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                                       text="text1".format(
@@ -253,6 +274,10 @@ def callback_inline(call):
                 bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                                       text="text2".format(
                                           call.from_user, bot.get_me()), parse_mode='html', reply_markup=markup_guide2)
+            if call.data == 'rest1':
+                bot.send_message(chat_id=call.message.chat.id, text="ссылка на вэб карточку для ресторана".format(
+                                     call.from_user, bot.get_me()), parse_mode='html', reply_markup=markup_card)
+
     except Exception as e:
         print(repr(e))
 
